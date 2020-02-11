@@ -1,0 +1,118 @@
+---
+title: "NewtonRaphson-Yina"
+author: "Yina Liu"
+date: "2/11/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE}
+# Define functions
+# (All functions need to return f(x) and f’(x))
+F1<-function(x){
+  return(c(x^2,2*x)) # note that the function returns two numbers. The first is f(x); the second is the derivative, f'(x)
+}
+#define a function F2(x)=sin(x)
+F2<-function(x){
+  return(c(sin(x),cos(x))) 
+}
+#define F3(x)=(x-2)^3-6*x
+F3<-function(x){
+  return(c((x-2)^3-6*x,3*(x-2)^2-6)) 
+}
+#define F4(x)=cos(x)-x### 
+F4<-function(x){
+  return(c(cos(x)-x,-sin(x)-1)) 
+}
+
+# Define Newton-Raphson function 
+library(shape)
+NewtonRaphson<-function(func,StartingValue,Tolerance,MaxNumberOfIterations,DrawLines){
+  #initialize a variable, Deviation (say), to record |f(x)| so that you know how far away you are from 0. 
+  #(So initialize it to some arbitrary large number)
+  Deviation <- 1000
+  #Set up a counter, i, to record how many iterations you have performed. Set it equal to 0	
+  i <- 0
+  # Initialize the values of x and f(x)
+  X  <- StartingValue
+  
+  #Set up a while loop until we hit the required target accuracy or the max. number of steps
+  Z <- c()
+  while ((i<MaxNumberOfIterations)&&(Deviation>Tolerance))
+  {
+    # Record the value of f(x) and f’(x), for the current x value. 
+    Xprime <- func(X)
+    Z[1] <- Xprime[1]
+    Z[2] <- Xprime[2]
+    X_1 <- X - Z[1]/Z[2] #To draw line segment for Xn+1
+    # I put them in a variable Z. Z[1]<-f(x); Z[2]<-f’(x)
+    # To be safe, check that the function and it's derivative are defined at X (either could be NaN if you are unlucky)
+    if ((Z[1]=="NaN")||(Z[2]=="NaN")){
+      cat("\nFunction or derivative not defined error.\n")
+      break
+    }
+    if (DrawLines){
+      Arrows(X,0,X,Z[1],col="blue",lty=2,arr.length=0.01, arr.type = "T")
+      Arrows(X,Z[1],X_1,0,col="blue",lty=2,arr.length=0.01, arr.type = "T")
+      }
+    
+    #Find the next X-value using Newton-Raphson's formula. Let's call that value X
+    X <- X - Z[1]/Z[2]
+    Y <- func(X)[1]
+    # calculate Deviation<- |f(x)-0|
+    Deviation <- abs(Z[1]-0)
+    # increase the value of your iteration counter
+    i <- i+1
+    
+    # if you like, have the program write out how it is getting on
+    cat(paste("\nIteration ",i,":   X=",X,"  Y=",Y))
+    
+    # If you are feeling fancy, add some line segments to the screen to show where it just went
+    # See the 'fixed points' code for a reminder of how to do that.
+    # output the result
+    if (Deviation<Tolerance){
+      cat(paste("\nFound the root point: ",X, " after ", i, "iterations"))
+    }else{
+      cat(paste("\nConvergence failure. Deviation: ",Deviation, "after ", i, 	"iterations"))} 
+  }
+  
+  # have the function return the answer
+  return(X)
+}
+
+# Results and plots of Newton-Raphson
+
+# Root of x^2
+curve(x^2, xlim=c(-2,5), lwd=1.5, main="f1(x)=x^2")
+NewtonRaphson(F1,5,1e-3,40,1)
+abline(h=0,col='red',lwd=1, lty=2)
+abline(v=0,col='red',lwd=1, lty=2)
+
+
+# Root of sin(x)
+curve(sin(x), xlim=c(-2,5), lwd=1.5, main="f2(x)=sin(x)")
+NewtonRaphson(F2,2,1e-3,40,1)
+abline(h=0,col='red',lwd=1, lty=2)
+abline(v=0,col='red',lwd=1, lty=2)
+
+
+# Root of (x-2)^3-6*x)
+curve((x-2)^3-6*x, xlim=c(-2,10), lwd=1.5, main="f3(x)=(x-2)^3-6*x")
+NewtonRaphson(F3,10,1e-3,40,1)
+abline(h=0,col='red',lwd=1, lty=2)
+abline(v=0,col='red',lwd=1, lty=2)
+
+
+# Root of cos(x)-x
+curve(cos(x)-x, xlim=c(-2,5), lwd=1.5, main="f4(x)=cos(x)-x")
+NewtonRaphson(F4,3,1e-3,40,1)
+abline(h=0,col='red',lwd=1, lty=2)
+abline(v=0,col='red',lwd=1, lty=2)
+
+```
+
